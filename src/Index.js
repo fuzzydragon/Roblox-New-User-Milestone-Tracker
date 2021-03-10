@@ -9,7 +9,7 @@ async function Get(URL, Retry) {
 
     return Request
         .then((Response) => Response.data)
-        .catch(() => Retry ? Get(URL) : null)
+        .catch(() => Retry ? Get(URL, Retry) : null)
 }
 
 async function Start() {
