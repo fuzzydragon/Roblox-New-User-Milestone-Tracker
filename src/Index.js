@@ -14,7 +14,7 @@ async function Get(URL, Retry) {
 
 async function Start() {
     if (StartingId == null) {
-        StartingId = 10e+12 // Works until UserId 1 trillion exists
+        StartingId = 10e+10 // Works until UserId 10 billion exists
 
         let Response = null
 
