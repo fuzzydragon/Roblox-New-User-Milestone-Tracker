@@ -22,7 +22,7 @@ async function LightGet(URL) {
 
 async function Start() {
     if (StartingId == null) {
-        StartingId = 10e+10
+        StartingId = 1e+10
 
         let Response = null
 
