@@ -2,6 +2,7 @@ const Axios = require(`axios`)
 
 let StartingId = null
 const UserIdDelta = 100
+const StartingIdPrecisionFactor = 0.95
 
 async function Get(URL, Retry) {
     const Request = Axios.get(URL)
@@ -20,7 +21,7 @@ async function Start() {
         while (!Response) {
             process.title = `Searching for good StartingId. Trying: ${StartingId}`
             Response = await Get(`https://www.roblox.com/users/${StartingId}/profile`, false)
-            StartingId = Math.floor(StartingId * 0.9)
+            StartingId = Math.floor(StartingId * StartingIdPrecisionFactor)
         }
     }
 
