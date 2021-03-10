@@ -1,8 +1,9 @@
 const Axios = require(`axios`)
 
 let StartingId = null
+
 const UserIdDelta = 100
-const StartingIdPrecisionFactor = 0.999
+const StartingIdPrecisionFactor = 0.99999
 
 async function Get(URL, Retry) {
     const Request = Axios.get(URL)
@@ -22,13 +23,15 @@ async function LightGet(URL) {
 
 async function Start() {
     if (StartingId == null) {
-        StartingId = 1e+10
+        StartingId = 2.5e+9
 
         let Response = null
 
+        console.log(`No StartingId entered. Searching for one...`)
+
         while (Response != 200) {
             process.title = `Searching for good StartingId. Trying: ${StartingId}`
-            Response = await LightGet(`https://www.roblox.com/users/${StartingId}/profile`)
+            Response = await LightGet(`https://www.roblox.com/users/${StartingId}/profile`, false)
             StartingId = Math.floor(StartingId * StartingIdPrecisionFactor)
         }
     }
