@@ -28,7 +28,7 @@ async function Start() {
 
         while (Response != 200) {
             process.title = `Searching for good StartingId. Trying: ${StartingId}`
-            Response = await LightGet(`https://www.roblox.com/users/${StartingId}/profile`, false)
+            Response = await LightGet(`https://www.roblox.com/users/${StartingId}/profile`)
             StartingId = Math.floor(StartingId * StartingIdPrecisionFactor)
         }
     }
