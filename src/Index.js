@@ -1,48 +1,45 @@
-const HTTPS = require("https")
+const Axios = require(`axios`)
 
-let ID = 2426242000
+let StartingId = null
+const UserIdDelta = 100
 
-const Delta = 100
 
-async function HTTPSGet(URL) {
-    const RequestPromise = new Promise((Resolve) => {
-        const Request = HTTPS.request(URL, (Response) => {
-            let Data = ""
+async function Get(URL, Retry) {
+    const Request = Axios.get(URL)
 
-            Response.on("data", (Chunk) => Data += Chunk)
-            Response.on("end", () => Resolve([Response.statusCode, Data]))
-        })
-
-        Request.end()
-    })
-
-    return RequestPromise
+    return Request
+        .then((Response) => Response.data)
+        .catch(() => Retry ? Get(URL) : null)
 }
 
-async function Check() {
-    const CheckURL = `https://www.roblox.com/users/${ID}/profile`
+async function Start() {
+    if (StartingId == null) {
+        StartingId = 10e+12 // Works until UserId 1 trillion exists
 
-    const [Status, Response] = await HTTPSGet(CheckURL)
-    
-    const Reg = /(\w+)(?= is one of the millions playing)/
-    let Match = Response.match(Reg)
+        let Response = null
 
-    process.title = `Querying UserId: ${ID}`
+        while (!Response) {
+            process.title = `Searching for good StartingId. Trying: ${StartingId}`
+            Response = await Get(`https://www.roblox.com/users/${StartingId}/profile`, false) // maybe later dont grab the entire 404 page... for now its fine. 
+            StartingId = Math.floor(StartingId * 0.9)
+        }
+    }
 
-    if (Status == 200) {
+    let UserId = StartingId
+
+    while (true) {
+        process.title = `Querying UserId: ${UserId}`
+
+        const Response = await Get(`https://www.roblox.com/users/${UserId}/profile`, true)
+        let Match = Response.match(/(\w+)(?= is one of the millions playing)/)
+
         if (Match) {
             Match = Match[0]
         }
 
-        console.log(ID, Match)
-        ID += Delta
-    }
-}
-
-async function Start() {
-    while (true) {
-        await Check()
-    }
+        console.log(UserId, Match)
+        UserId = UserId + UserIdDelta
+    } 
 }
 
 Start()
