@@ -1,56 +1,47 @@
-const Axios = require(`axios`)
+const axios = require(`axios`)
 
-let StartingId = null
+let startingID = null
 
-const UserIdDelta = 100
-const StartingIdPrecisionFactor = 0.99999
+const userIDDelta = 100
+const startingIDPrecisionFactor = 0.99999
 
-async function Get(URL, Retry) {
-    const Request = Axios.get(URL)
+const legosURL = 'https://www.roblox.com/users/'
 
-    return Request
-        .then((Response) => Response.data)
-        .catch(() => Retry ? Get(URL, Retry) : null)
+const get = (url, retry) => {
+    return axios.get(url)
+          .then((res) => res.data)
+          .catch(() => retry ? get(url, retry) : null)
 }
 
-async function LightGet(URL) {
-    const Request = Axios.head(URL)
-
-    return Request
-        .then((Response) => Response.status)
-        .catch((Error) => Error.response.status)
+const lightGet(url) = (url) => {
+    return axios.head(url)
+            .then((res) => res.status)
+            .catch((e) => e.response.status)
 }
 
-async function Start() {
-    if (StartingId == null) {
-        StartingId = 2.5e+9
-
-        let Response = null
-
-        console.log(`No StartingId entered. Searching for one...`)
-
-        while (Response != 200) {
-            process.title = `Searching for good StartingId. Trying: ${StartingId}`
-            Response = await LightGet(`https://www.roblox.com/users/${StartingId}/profile`, false)
-            StartingId = Math.floor(StartingId * StartingIdPrecisionFactor)
+const init = async () => {
+    if (startingID === null) {
+        let res
+        
+        startingID = 2.5e+9
+        console.log('No startingID entered. Searching for one...')
+        while (res !== 200) {
+            process.title = `Searching for good startingID. Trying: ${startingID}`
+            res = await lightGet(`${legosURL}${startingID}/profile`)
+            startingID = Math.floor(startingID * startingIDPrecisionFactor)
         }
     }
-
-    let UserId = StartingId
-
+    
+    let userID = startingID
     while (true) {
-        process.title = `Querying UserId: ${UserId}`
+         process.title = `Querying UserId: ${userID}`
 
-        const Response = await Get(`https://www.roblox.com/users/${UserId}/profile`, true)
-        let Match = Response.match(/(\w+)(?= is one of the millions playing)/)
+        const res = await get(`${legosURL}${userID}/profile`, true)
+        let match = res.match(/(\w+)(?= is one of the millions playing)/)?.[0]
 
-        if (Match) {
-            Match = Match[0]
-        }
-
-        console.log(UserId, Match)
-        UserId = UserId + UserIdDelta
-    } 
+        console.log(userid, match)
+        userid += userIDDelta  
+    }
 }
 
-Start()
+init()
